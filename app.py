@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')  # Use the 'Agg' backend for non-interactive rendering
+
 from flask import Flask, request, render_template_string, redirect, url_for, session
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +39,7 @@ AUTH_TEMPLATE = """
 </html>
 """
 
-# HTML template for the input form
+# HTML template for the input form and the chart
 HTML_TEMPLATE = """
 <!doctype html>
 <html lang="en">
@@ -50,10 +53,32 @@ HTML_TEMPLATE = """
         button { background-color: #007BFF; color: white; border: none; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         img { margin-top: 20px; max-width: 100%; height: auto; }
+
+        /* Style for the logout button */
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff5c5c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            width:90px;
+        }
+        .logout-button:hover {
+            background-color: #e04e4e;
+        }
     </style>
 </head>
 <body>
     <h1>Marginal Abatement Cost Curve (MACC)</h1>
+
+    <!-- Logout Button -->
+    <form action="{{ url_for('logout') }}" method="POST">
+        <button type="submit" class="logout-button">Logout</button>
+    </form>
+
     <form method="POST">
         <input type="text" name="project_name" placeholder="Project Name" required><br>
         <input type="text" name="categories" placeholder="Enter categories (comma-separated)" required><br>
@@ -92,7 +117,7 @@ def register():
         return redirect(url_for("login"))
     return render_template_string(AUTH_TEMPLATE, title="Register", message="")
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
@@ -114,16 +139,20 @@ def index():
             if len(categories) != len(values) or len(categories) != len(widths):
                 return "Error: The number of categories, values, and widths must be the same."
 
-            x_positions = np.cumsum([0] + widths[:-1])
+            # We need to position the bars by the widths (Abatement values)
+            x_positions = np.cumsum([0] + widths[:-1])  # Start the positions based on widths
             colors = ["#" + ''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(categories))]
 
             plt.figure(figsize=(10, 6))
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
-            plt.xticks(x_positions + np.array(widths) / 2, categories, rotation=90)
+            
+            # Remove rotation and keep x-axis labels horizontal
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center")  # Remove rotation
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}")
             plt.xlabel("Categories")
             plt.ylabel("MACC Value (USD/Tonne)")
             
+            # Add value labels to each bar
             for x, y, w in zip(x_positions, values, widths):
                 plt.text(x + w / 2, y + (1 if y > 0 else -2), f"{y}\n({w})", ha="center", fontsize=10)
 
