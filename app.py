@@ -64,7 +64,6 @@ HTML_TEMPLATE = """
             border: none;
             padding: 10px 20px;
             cursor: pointer;
-            width:90px;
         }
         .logout-button:hover {
             background-color: #e04e4e;
@@ -81,7 +80,7 @@ HTML_TEMPLATE = """
 
     <form method="POST">
         <input type="text" name="project_name" placeholder="Project Name" required><br>
-        <input type="text" name="categories" placeholder="Enter categories (comma-separated)" required><br>
+        <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
         <input type="text" name="values" placeholder="Enter MACC Value (USD/Tonne)" required><br>
         <input type="text" name="widths" placeholder="Enter Abatement Value (Tonne)" required><br>
         <button type="submit">Generate Chart</button>
@@ -137,7 +136,7 @@ def index():
             widths = list(map(float, request.form["widths"].split(",")))
 
             if len(categories) != len(values) or len(categories) != len(widths):
-                return "Error: The number of categories, values, and widths must be the same."
+                return "Error: The number of Interventions/Projects, values, and widths must be the same."
 
             # We need to position the bars by the widths (Abatement values)
             x_positions = np.cumsum([0] + widths[:-1])  # Start the positions based on widths
@@ -146,13 +145,18 @@ def index():
             plt.figure(figsize=(10, 6))
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
             
-            # Remove rotation and keep x-axis labels horizontal
-            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center")  # Remove rotation
+            # Align category names along the x-axis at the baseline
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center")  # Aligning categories at the baseline
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}")
-            plt.xlabel("Categories")
+            plt.xlabel("Interventions/Projects")
             plt.ylabel("MACC Value (USD/Tonne)")
-            
-            # Add value labels to each bar
+
+            # Add width values (Abatement values) below the bars, ensuring they do not overlap with category names
+            for i, (x, width) in enumerate(zip(x_positions, widths)):
+                # Set y position for the width value text (slightly below the x-axis)
+                plt.text(x + width / 2, -1.5, f"{width}T", ha="center", fontsize=10, color="black")
+
+            # Add value labels to each bar (slightly above the bars)
             for x, y, w in zip(x_positions, values, widths):
                 plt.text(x + w / 2, y + (1 if y > 0 else -2), f"{y}\n({w})", ha="center", fontsize=10)
 
