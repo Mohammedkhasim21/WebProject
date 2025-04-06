@@ -137,16 +137,20 @@ def index():
 
             if len(categories) != len(values) or len(categories) != len(widths):
                 return "Error: The number of Interventions/Projects, values, and widths must be the same."
-
+            
             # We need to position the bars by the widths (Abatement values)
             x_positions = np.cumsum([0] + widths[:-1])  # Start the positions based on widths
             colors = ["#" + ''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(categories))]
 
-            plt.figure(figsize=(10, 6))
+            plt.figure(figsize=(20,25))  # Increased the figure size for more space
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
             
+            # Add labels on top of each bar
+            for x, y, w in zip(x_positions, values, widths):
+                plt.text(x + w / 2, y + 1, str(y), ha='center', fontsize=10)
+            
             # Align category names along the x-axis at the baseline and rotate them vertically
-            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90)  # Rotate category names vertically
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=10)  # Rotating labels to 45 degrees for more space
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}")
             plt.xlabel("Interventions/Projects")
             plt.ylabel("MACC Value (USD/Tonne)")
@@ -154,11 +158,7 @@ def index():
             # Add width values (Abatement values) below the bars, ensuring they do not overlap with category names
             for i, (x, width) in enumerate(zip(x_positions, widths)):
                 # Set y position for the width value text (slightly below the x-axis)
-                plt.text(x + width / 2, -1.5, f"{width}", ha="center", fontsize=10, color="black")
-
-            # Add value labels to each bar (slightly above the bars)
-            for x, y, w in zip(x_positions, values, widths):
-                plt.text(x + w / 2, y + (1 if y > 0 else -2), f"{y}\n({w})", ha="center", fontsize=10)
+                plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=10, color="black")
 
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
