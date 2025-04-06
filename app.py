@@ -145,8 +145,8 @@ def index():
             plt.figure(figsize=(10, 6))
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
             
-            # Align category names along the x-axis at the baseline
-            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center")  # Aligning categories at the baseline
+            # Align category names along the x-axis at the baseline and rotate them vertically
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90)  # Rotate category names vertically
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}")
             plt.xlabel("Interventions/Projects")
             plt.ylabel("MACC Value (USD/Tonne)")
