@@ -82,7 +82,7 @@ HTML_TEMPLATE = """
         <input type="text" name="project_name" placeholder="Project Name" required><br>
         <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
         <input type="text" name="values" placeholder="Enter MACC Value (USD/Tonne)" required><br>
-        <input type="text" name="widths" placeholder="Enter Abatement Value (Tonne)" required><br>
+        <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Tonne)" required><br>
         <button type="submit">Generate Chart</button>
     </form>
     {% if chart %}
@@ -154,7 +154,7 @@ def index():
             # Add width values (Abatement values) below the bars, ensuring they do not overlap with category names
             for i, (x, width) in enumerate(zip(x_positions, widths)):
                 # Set y position for the width value text (slightly below the x-axis)
-                plt.text(x + width / 2, -1.5, f"{width}T", ha="center", fontsize=10, color="black")
+                plt.text(x + width / 2, -1.5, f"{width}", ha="center", fontsize=10, color="black")
 
             # Add value labels to each bar (slightly above the bars)
             for x, y, w in zip(x_positions, values, widths):
