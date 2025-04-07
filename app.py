@@ -83,6 +83,7 @@ HTML_TEMPLATE = """
         <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
         <input type="text" name="values" placeholder="Enter MACC Value (USD/Tonne)" required><br>
         <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Tonne)" required><br>
+        <input type="number" name="line_value" placeholder="Y-value for Horizontal Line (Optional)"><br>
         <button type="submit">Generate Chart</button>
     </form>
     {% if chart %}
@@ -135,6 +136,10 @@ def index():
             values = list(map(float, request.form["values"].split(",")))
             widths = list(map(float, request.form["widths"].split(",")))
 
+            # Check if line_value was provided by the user
+            line_value = request.form.get("line_value", None)
+            line_value = float(line_value) if line_value else None
+
             if len(categories) != len(values) or len(categories) != len(widths):
                 return "Error: The number of Interventions/Projects, values, and widths must be the same."
             
@@ -159,6 +164,12 @@ def index():
             for i, (x, width) in enumerate(zip(x_positions, widths)):
                 # Set y position for the width value text (slightly below the x-axis)
                 plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=10, color="black")
+
+            # If a line_value is provided, draw the horizontal line
+            if line_value is not None:
+                plt.axhline(y=line_value, color='red', linestyle='--', linewidth=2)
+                plt.text(x_positions[-1] + widths[-1] / 2, line_value + 1, f"Line at {line_value}", 
+                         color='red', fontsize=12, ha='center')
 
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
