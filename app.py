@@ -20,21 +20,94 @@ AUTH_TEMPLATE = """
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Login / Register</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        form { display: inline-block; text-align: left; }
-        input, button { display: block; margin-top: 10px; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .auth-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            font-size: 16px;
+            color: #888;
+        }
+        .message {
+            font-size: 14px;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        .auth-links {
+            margin-top: 20px;
+        }
+        .auth-links a {
+            color: #007BFF;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-    <h2>{{ title }}</h2>
-    <form method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Submit</button>
-    </form>
-    <p>{{ message }}</p>
+    <div class="auth-container">
+        <h2>{{ title }}</h2>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required><br>
+            <input type="password" name="password" placeholder="Password" required><br>
+            <button type="submit">Submit</button>
+        </form>
+        <p class="message">{{ message }}</p>
+        {% if title == "Login" %}
+        <div class="auth-links">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+        </div>
+        {% else %}
+        <div class="auth-links">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        </div>
+        {% endif %}
+    </div>
 </body>
 </html>
 """
@@ -47,14 +120,37 @@ HTML_TEMPLATE = """
     <meta charset="utf-8">
     <title>Marginal Abatement Cost Curve (MACC)</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        form { display: inline-block; margin-top: 20px; text-align: left; }
-        input, button { display: block; margin-top: 5px; padding: 8px; width: 300px; }
-        button { background-color: #007BFF; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        img { margin-top: 20px; max-width: 100%; height: auto; }
-
-        /* Style for the logout button */
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 20px;
+        }
+        form {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: left;
+        }
+        input, button {
+            display: block;
+            margin-top: 15px;
+            padding: 12px;
+            width: 350px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
         .logout-button {
             position: absolute;
             top: 20px;
@@ -62,18 +158,38 @@ HTML_TEMPLATE = """
             background-color: #ff5c5c;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             cursor: pointer;
+            font-size: 18px;
+            width:100px;
         }
         .logout-button:hover {
             background-color: #e04e4e;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        h1 {
+            font-size: 36px;
+            color: #333;
+        }
+        .chart-labels {
+            font-size: 20px;
+        }
+        .chart-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .chart-axis-labels {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Marginal Abatement Cost Curve (MACC)</h1>
 
-    <!-- Logout Button -->
     <form action="{{ url_for('logout') }}" method="POST">
         <button type="submit" class="logout-button">Logout</button>
     </form>
@@ -81,13 +197,14 @@ HTML_TEMPLATE = """
     <form method="POST">
         <input type="text" name="project_name" placeholder="Project Name" required><br>
         <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
-        <input type="text" name="values" placeholder="Enter MACC Value (USD/Tonne)" required><br>
-        <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Tonne)" required><br>
+        <input type="text" name="values" placeholder="Enter Internal Carbon Pricing in USD/ton CO2" required><br>
+        <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Million tonne)" required><br>
         <input type="number" name="line_value" placeholder="Y-value for Horizontal Line (Optional)"><br>
         <button type="submit">Generate Chart</button>
     </form>
+
     {% if chart %}
-    <h2>Generated MACC Chart:</h2>
+    <h2 class="chart-title">Generated MACC Chart:</h2>
     <img src="data:image/png;base64,{{ chart }}" alt="MACC Chart">
     {% endif %}
 </body>
@@ -129,12 +246,14 @@ def index():
         return redirect(url_for("login"))
     
     chart = None
+    total_abatement = 0  # Initialize variable to store total CO2 abatement
+
     if request.method == "POST":
         try:
             project_name = request.form["project_name"]
             categories = request.form["categories"].split(",")
-            values = list(map(float, request.form["values"].split(",")))
-            widths = list(map(float, request.form["widths"].split(",")))
+            values = list(map(float, request.form["values"].split(",")))  # Internal Carbon Pricing in USD/ton CO2
+            widths = list(map(float, request.form["widths"].split(",")))  # CO2 Abatement in Million tonne
 
             # Check if line_value was provided by the user
             line_value = request.form.get("line_value", None)
@@ -143,33 +262,47 @@ def index():
             if len(categories) != len(values) or len(categories) != len(widths):
                 return "Error: The number of Interventions/Projects, values, and widths must be the same."
             
+            # Calculate total CO2 abatement
+            total_abatement = sum(widths)
+
             # We need to position the bars by the widths (Abatement values)
             x_positions = np.cumsum([0] + widths[:-1])  # Start the positions based on widths
             colors = ["#" + ''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(categories))]
 
             plt.figure(figsize=(20,25))  # Increased the figure size for more space
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
-            
-            # Add labels on top of each bar
+
+            # Increase font size for labels on top of each bar
             for x, y, w in zip(x_positions, values, widths):
-                plt.text(x + w / 2, y + 1, str(y), ha='center', fontsize=10)
-            
-            # Align category names along the x-axis at the baseline and rotate them vertically
-            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=10)  # Rotating labels to 45 degrees for more space
-            plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}")
-            plt.xlabel("Interventions/Projects")
-            plt.ylabel("MACC Value (USD/Tonne)")
+                plt.text(x + w / 2, y + 1, str(y), ha='center', fontsize=20)
+
+            # Align category names along the x-axis and rotate them vertically
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=20)
+            plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}", fontsize=24)
+            plt.xlabel("CO2 Abatement, Million tonne", fontsize=20)
+            plt.ylabel("Enter Internal Carbon Pricing in USD/ton CO2", fontsize=20)
 
             # Add width values (Abatement values) below the bars, ensuring they do not overlap with category names
             for i, (x, width) in enumerate(zip(x_positions, widths)):
-                # Set y position for the width value text (slightly below the x-axis)
-                plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=10, color="black")
+                plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=20, color="black")
 
             # If a line_value is provided, draw the horizontal line
             if line_value is not None:
                 plt.axhline(y=line_value, color='red', linestyle='--', linewidth=2)
-                plt.text(x_positions[-1] + widths[-1] / 2, line_value + 1, f"Line at {line_value}", 
-                         color='red', fontsize=12, ha='center')
+                plt.text(x_positions[-1] + widths[-1] / 2, line_value + 1, f"Line at {line_value}",
+                         color='red', fontsize=20, ha='center')
+
+            # Increase font size for Y-axis labels
+            plt.tick_params(axis='y', labelsize=20)  # Increase the font size for Y-axis numbers
+
+            # Adjust the bottom margin to make space for long category names
+            plt.subplots_adjust(bottom=0.3, right=0.95)  # Adjust bottom margin and slightly increase right margin
+
+            # Add the total CO2 abatement value at the bottom-right within the box
+            plt.text(x_positions[-2] + widths[-2] * 0.5, -15, #<---Y-axis position adjustment,
+                     
+                      f"Total CO2 Abatement: {total_abatement:.2f} Million tonne", 
+                     ha='center', fontsize=20, color="black")
 
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
@@ -181,6 +314,9 @@ def index():
             return f"Error processing your input: {e}"
 
     return render_template_string(HTML_TEMPLATE, chart=chart)
+
+
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
