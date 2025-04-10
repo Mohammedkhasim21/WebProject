@@ -136,7 +136,7 @@ HTML_TEMPLATE = """
             display: block;
             margin-top: 15px;
             padding: 12px;
-            width: 350px;
+            width: 550px;
             font-size: 18px;
             border-radius: 5px;
             border: 1px solid #ddd;
@@ -195,11 +195,11 @@ HTML_TEMPLATE = """
     </form>
 
     <form method="POST">
-        <input type="text" name="project_name" placeholder="Project Name" required><br>
+        <input type="text" name="project_name" placeholder="Enter Title Name" required><br>
         <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
-        <input type="text" name="values" placeholder="Enter Internal Carbon Pricing in USD/ton CO2" required><br>
+        <input type="text" name="values" placeholder="Enter MACC value in USD/ton CO2" required><br>
         <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Million tonne)" required><br>
-        <input type="number" name="line_value" placeholder="Y-value for Horizontal Line (Optional)"><br>
+        <input type="number" name="line_value" placeholder=" Enter Internal carbon price in USD/ton CO2 (optional)"><br>
         <button type="submit">Generate Chart</button>
     </form>
 
@@ -211,7 +211,6 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# Authentication Routes
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -239,70 +238,59 @@ def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
 
-# Route to display the form and generate the chart
 @app.route("/", methods=["GET", "POST"])
 def index():
     if "user" not in session:
         return redirect(url_for("login"))
     
     chart = None
-    total_abatement = 0  # Initialize variable to store total CO2 abatement
 
     if request.method == "POST":
         try:
             project_name = request.form["project_name"]
             categories = request.form["categories"].split(",")
-            values = list(map(float, request.form["values"].split(",")))  # Internal Carbon Pricing in USD/ton CO2
-            widths = list(map(float, request.form["widths"].split(",")))  # CO2 Abatement in Million tonne
+            values = list(map(float, request.form["values"].split(",")))
+            widths = list(map(float, request.form["widths"].split(",")))
 
-            # Check if line_value was provided by the user
             line_value = request.form.get("line_value", None)
             line_value = float(line_value) if line_value else None
 
             if len(categories) != len(values) or len(categories) != len(widths):
                 return "Error: The number of Interventions/Projects, values, and widths must be the same."
-            
-            # Calculate total CO2 abatement
-            total_abatement = sum(widths)
 
-            # We need to position the bars by the widths (Abatement values)
-            x_positions = np.cumsum([0] + widths[:-1])  # Start the positions based on widths
+            total_abatement = sum(widths)
+            x_positions = np.cumsum([0] + widths[:-1])
             colors = ["#" + ''.join(random.choices('0123456789ABCDEF', k=6)) for _ in range(len(categories))]
 
-            plt.figure(figsize=(20,25))  # Increased the figure size for more space
+            plt.figure(figsize=(20, 25))
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
 
-            # Increase font size for labels on top of each bar
             for x, y, w in zip(x_positions, values, widths):
                 plt.text(x + w / 2, y + 1, str(y), ha='center', fontsize=20)
 
-            # Align category names along the x-axis and rotate them vertically
             plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=20)
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}", fontsize=24)
             plt.xlabel("CO2 Abatement, Million tonne", fontsize=20)
-            plt.ylabel("Enter Internal Carbon Pricing in USD/ton CO2", fontsize=20)
+            plt.ylabel("Internal Carbon Pricing in USD/ton CO2", fontsize=20)
 
-            # Add width values (Abatement values) below the bars, ensuring they do not overlap with category names
             for i, (x, width) in enumerate(zip(x_positions, widths)):
                 plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=20, color="black")
 
-            # If a line_value is provided, draw the horizontal line
             if line_value is not None:
                 plt.axhline(y=line_value, color='red', linestyle='--', linewidth=2)
-                plt.text(x_positions[-1] + widths[-1] / 2, line_value + 1, f"Line at {line_value}",
+                plt.text(x_positions[-1] + widths[-1] / 2, line_value + 1, f"Internal carbon price {line_value}",
                          color='red', fontsize=20, ha='center')
 
-            # Increase font size for Y-axis labels
-            plt.tick_params(axis='y', labelsize=20)  # Increase the font size for Y-axis numbers
+            plt.tick_params(axis='y', labelsize=20)
+            plt.subplots_adjust(bottom=0.3, right=0.95)
 
-            # Adjust the bottom margin to make space for long category names
-            plt.subplots_adjust(bottom=0.3, right=0.95)  # Adjust bottom margin and slightly increase right margin
-
-            # Add the total CO2 abatement value at the bottom-right within the box
-            plt.text(x_positions[-2] + widths[-2] * 0.5, -15, #<---Y-axis position adjustment,
-                     
-                      f"Total CO2 Abatement: {total_abatement:.2f} Million tonne", 
-                     ha='center', fontsize=20, color="black")
+            # NEW: Add total CO2 abatement vertically next to last bar
+            last_x = x_positions[-1]
+            last_width = widths[-1]
+            last_value = values[-1]
+            total_text = f"Total:\n{total_abatement:.2f}"
+            plt.text(last_x + last_width + 2, last_value / 2, total_text,
+                     rotation=90, fontsize=20, va='center', color="black")
 
             buf = io.BytesIO()
             plt.savefig(buf, format="png")
@@ -314,9 +302,6 @@ def index():
             return f"Error processing your input: {e}"
 
     return render_template_string(HTML_TEMPLATE, chart=chart)
-
-
-
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
