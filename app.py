@@ -197,8 +197,8 @@ HTML_TEMPLATE = """
     <form method="POST">
         <input type="text" name="project_name" placeholder="Enter Organisation Name" required><br>
         <input type="text" name="categories" placeholder="Enter Interventions/Projects (comma-separated)" required><br>
-        <input type="text" name="values" placeholder="Enter MACC value in USD/ton CO2" required><br>
-        <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Million tonne)" required><br>
+        <input type="text" name="values" placeholder="Enter MACC Value In USD/Ton CO2 (comma-separated)" required><br>
+        <input type="text" name="widths" placeholder="Enter CO2 Abatement Value (Million tonne) (comma-separated)" required><br>
         <input type="number" name="line_value" placeholder=" Enter Internal carbon price in USD/ton CO2 (optional)"><br>
         <button type="submit">Generate Chart</button>
     </form>
@@ -271,7 +271,7 @@ def index():
             plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=20)
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}", fontsize=24)
             plt.xlabel("CO2 Abatement, Million tonne", fontsize=20)
-            plt.ylabel("MACC VALUE IN USD/TON CO2", fontsize=20)
+            plt.ylabel("MACC Value In USD/TON In CO2", fontsize=20)
 
             for x, width in zip(x_positions, widths):
                 plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=20, color="black")
