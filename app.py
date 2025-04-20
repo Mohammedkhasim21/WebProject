@@ -15,7 +15,7 @@ app.secret_key = "your_secret_key"  # Secret key for session management
 # Simulated user database (for demonstration purposes)
 users = {"admin": "password123"}
 
-# HTML template for login and registration
+# HTML template for login (registration removed)
 AUTH_TEMPLATE = """
 <!doctype html>
 <html lang="en">
@@ -80,13 +80,6 @@ AUTH_TEMPLATE = """
             color: #e74c3c;
             margin-top: 10px;
         }
-        .auth-links {
-            margin-top: 20px;
-        }
-        .auth-links a {
-            color: #007BFF;
-            text-decoration: none;
-        }
     </style>
 </head>
 <body>
@@ -98,15 +91,6 @@ AUTH_TEMPLATE = """
             <button type="submit">Submit</button>
         </form>
         <p class="message">{{ message }}</p>
-        {% if title == "Login" %}
-        <div class="auth-links">
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
-        </div>
-        {% else %}
-        <div class="auth-links">
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
-        </div>
-        {% endif %}
     </div>
 </body>
 </html>
@@ -222,17 +206,6 @@ def login():
         return render_template_string(AUTH_TEMPLATE, title="Login", message="Invalid credentials.")
     return render_template_string(AUTH_TEMPLATE, title="Login", message="")
 
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if username in users:
-            return render_template_string(AUTH_TEMPLATE, title="Register", message="User already exists.")
-        users[username] = password
-        return redirect(url_for("login"))
-    return render_template_string(AUTH_TEMPLATE, title="Register", message="")
-
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user", None)
@@ -271,7 +244,7 @@ def index():
             plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=20)
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}", fontsize=24)
             plt.xlabel("CO2 Abatement, Million tonne", fontsize=20)
-            plt.ylabel("MACC Value In USD/TON In CO2", fontsize=20)
+            plt.ylabel("MACC Value In USD/TON CO2", fontsize=20)
 
             for x, width in zip(x_positions, widths):
                 plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=20, color="black")
@@ -284,7 +257,6 @@ def index():
             plt.tick_params(axis='y', labelsize=20)
             plt.subplots_adjust(bottom=0.3, right=0.95)
 
-            # Updated: Show total CO2 abatement below the last bar
             last_x = x_positions[-1]
             last_width = widths[-1]
             plt.text(last_x + last_width / 2, -5, f"Total: {total_abatement:.2f}",
