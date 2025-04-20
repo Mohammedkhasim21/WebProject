@@ -239,15 +239,15 @@ def index():
             plt.bar(x_positions, values, width=widths, color=colors, edgecolor='black', align='edge')
 
             for x, y, w in zip(x_positions, values, widths):
-                plt.text(x + w / 2, y + 1,rotation=90, str(y), ha='center', fontsize=20)
+                plt.text(x + w / 2, y + 1, str(y), ha='center',rotation=90, fontsize=20)
 
-            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center", rotation=90, fontsize=20)
+            plt.xticks(x_positions + np.array(widths) / 2, categories, ha="center",rotation=90,  fontsize=20)
             plt.title(f"Marginal Abatement Cost Curve (MACC) - {project_name}", fontsize=24)
-            plt.xlabel("CO2 Abatement, Million tonne", fontsize=20)
+            plt.xlabel("CO2 Abatement, Million Tonne", fontsize=20)
             plt.ylabel("MACC Value In USD/Ton CO2", fontsize=20)
 
             for x, width in zip(x_positions, widths):
-                plt.text(x + width / 2, -1, f"{int(width)}", ha="center", fontsize=20, color="black")
+                plt.text(x + width / 2, -1.5, f"{int(width)}", ha="center", fontsize=20, color="black")
 
             if line_value is not None:
                 plt.axhline(y=line_value, color='red', linestyle='--', linewidth=2)
@@ -259,7 +259,7 @@ def index():
 
             last_x = x_positions[-1]
             last_width = widths[-1]
-            plt.text(last_x + last_width / 1, -5, f"Total: {total_abatement:.2f}",
+            plt.text(last_x + last_width / 2, -5, f"Total: {total_abatement:.1f}",
                      ha='center', fontsize=20, color="black")
 
             buf = io.BytesIO()
